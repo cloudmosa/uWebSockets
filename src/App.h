@@ -297,8 +297,8 @@ public:
     }
 
     /* Port, callback */
-    TemplatedApp &&listen(int port, fu2::unique_function<void(us_listen_socket_t *)> &&handler) {
-        handler(httpContext->listen(nullptr, port, 0));
+    TemplatedApp &&listen(const char *host, int port, fu2::unique_function<void(us_listen_socket_t *)> &&handler) {
+        handler(httpContext->listen(host, port, 0));
         return std::move(*this);
     }
 
