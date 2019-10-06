@@ -41,7 +41,7 @@ private:
     struct Header {
         std::string_view key, value;
     } headers[MAX_HEADERS];
-    int querySeparator;
+    size_t querySeparator;
     bool didYield;
 
     std::pair<int, std::string_view *> currentParameters;
@@ -116,7 +116,7 @@ public:
         currentParameters = parameters;
     }
 
-    std::string_view getParameter(unsigned int index) {
+    std::string_view getParameter(int index) {
         if (currentParameters.first < index) {
             return {};
         } else {
@@ -130,7 +130,7 @@ struct HttpParser {
 
 private:
     std::string fallback;
-    unsigned int remainingStreamingBytes = 0;
+    size_t remainingStreamingBytes = 0;
 
     const size_t MAX_FALLBACK_SIZE = 1024 * 4;
 
@@ -204,7 +204,7 @@ private:
                 remainingStreamingBytes = toUnsignedInteger(contentLengthString);
 
                 if (!CONSUME_MINIMALLY) {
-                    unsigned int emittable = std::min<unsigned int>(remainingStreamingBytes, length);
+                    size_t emittable = std::min<size_t>(remainingStreamingBytes, length);
                     dataHandler(user, std::string_view(data, emittable), emittable == remainingStreamingBytes);
                     remainingStreamingBytes -= emittable;
 
@@ -231,7 +231,7 @@ public:
         return std::move(fallback);
     }
 
-    void *consumePostPadded(char *data, int length, void *user, fu2::unique_function<void *(void *, HttpRequest *)> &&requestHandler, fu2::unique_function<void *(void *, std::string_view, bool)> &&dataHandler, fu2::unique_function<void *(void *)> &&errorHandler) {
+    void *consumePostPadded(char *data, size_t length, void *user, fu2::unique_function<void *(void *, HttpRequest *)> &&requestHandler, fu2::unique_function<void *(void *, std::string_view, bool)> &&dataHandler, fu2::unique_function<void *(void *)> &&errorHandler) {
 
         HttpRequest req;
 

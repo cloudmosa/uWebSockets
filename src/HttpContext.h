@@ -235,6 +235,8 @@ private:
 
                 /* Uncork here as well (note: what if we failed to uncork and we then pub/sub before we even upgraded?) */
                 auto [written, failed] = asyncSocket->uncork();
+                (void)written;
+                (void)failed;
 
                 /* Reset upgradedWebSocket before we return */
                 httpContextData->upgradedWebSocket = nullptr;
@@ -275,6 +277,8 @@ private:
 
             /* Drain any socket buffer, this might empty our backpressure and thus finish the request */
             auto [written, failed] = asyncSocket->write(nullptr, 0, true, 0);
+            (void)written;
+            (void)failed;
 
             /* Expect another writable event, or another request within the timeout */
             asyncSocket->timeout(HTTP_IDLE_TIMEOUT_S);

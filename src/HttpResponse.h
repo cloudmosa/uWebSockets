@@ -142,7 +142,7 @@ private:
             httpResponseData->offset += written;
 
             /* Success is when we wrote the entire thing without any failures */
-            bool success = written == data.length() && !failed;
+            bool success = written == static_cast<int>(data.length()) && !failed;
 
             /* If we are now at the end, start a timeout. Also start a timeout if we failed. */
             if (!success || httpResponseData->offset == totalSize) {

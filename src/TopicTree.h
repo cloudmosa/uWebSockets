@@ -75,6 +75,7 @@ public:
 
     ~TopicTree() {
         /* We have a few leaks here, I think */
+        (void)mergePublishedMessages;
     }
 
     TopicTree() {
@@ -95,6 +96,8 @@ public:
 
                     /* Writing optionally raw data */
                     auto [written, failed] = asyncSocket->write(topicNode->sharedMessage.data(), topicNode->sharedMessage.length(), true, 0);
+                    (void)written;
+                    (void)failed;
 
                     /* We should probably reset timeout for a WebSocket getting something sent */
 
@@ -121,8 +124,8 @@ public:
     /* WebSocket.subscribe will lookup the Loop and subscribe in its tree */
     void subscribe(std::string topic, void *connection, bool *valid) {
         Node *curr = &topicToNode;
-        for (int i = 0; i < topic.length(); i++) {
-            int start = i;
+        for (size_t i = 0; i < topic.length(); i++) {
+            size_t start = i;
             while (topic[i] != '/' && i < topic.length()) {
                 i++;
             }
@@ -149,8 +152,8 @@ public:
     /* WebSocket.publish looks up its tree and publishes to it */
     void publish(std::string topic, char *data, size_t length) {
         Node *curr = &topicToNode;
-        for (int i = 0; i < topic.length(); i++) {
-            int start = i;
+        for (size_t i = 0; i < topic.length(); i++) {
+            size_t start = i;
             while (topic[i] != '/' && i < topic.length()) {
                 i++;
             }
