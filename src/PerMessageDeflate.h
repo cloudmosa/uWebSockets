@@ -66,7 +66,7 @@ struct DeflationStream {
     z_stream deflationStream = {};
 
     DeflationStream() {
-        deflateInit2(&deflationStream, 1, Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY);
+        deflateInit2(&deflationStream, Z_BEST_COMPRESSION, Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY);
     }
 
     /* Deflate and optionally reset */
