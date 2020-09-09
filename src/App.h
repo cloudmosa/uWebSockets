@@ -90,6 +90,7 @@ public:
         int maxPayloadLength = 16 * 1024;
         int idleTimeout = 120;
         std::string protocol;
+        fu2::unique_function<void(HttpResponse<SSL> *, HttpRequest *)> response = nullptr;
         fu2::unique_function<void(uWS::WebSocket<SSL, true> *, HttpRequest *)> open = nullptr;
         fu2::unique_function<void(uWS::WebSocket<SSL, true> *, std::string_view, uWS::OpCode)> message = nullptr;
         fu2::unique_function<void(uWS::WebSocket<SSL, true> *)> drain = nullptr;
@@ -152,6 +153,11 @@ public:
 
                 if (!behavior.protocol.empty())
                   res->writeHeader("Sec-WebSocket-Protocol", behavior.protocol);
+
+                /* Let application layer edit HTTP response. */
+                if (behavior.response) {
+                    behavior.response(res, req);
+                }
 
                 /* Negotiate compression */
                 bool perMessageDeflate = false;
