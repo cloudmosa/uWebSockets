@@ -215,6 +215,34 @@ public:
         internalEnd(data, data.length(), false);
     }
 
+    /* End the response without complete data. Mandarin use this function to force HTTP request fail on network layer. */
+    void endNow() {
+        /* Write status if not already done */
+        writeStatus(HTTP_200_OK);
+
+        HttpResponseData<SSL>* httpResponseData = getHttpResponseData();
+        if (httpResponseData->state & HttpResponseData<SSL>::HTTP_WRITE_CALLED) {
+            /* We do not have tryWrite-like functionalities, so ignore optional in
+             * this path */
+            /* Terminating 0 chunk */
+            Super::write("\r\n0\r\n\r\n", 7);
+            markDone(httpResponseData);
+        } else {
+            /* Write content-length on first call */
+            if (!(httpResponseData->state & HttpResponseData<SSL>::HTTP_END_CALLED)) {
+                /* Write mark, this propagates to WebSockets too */
+                writeMark();
+                Super::write("\r\n", 2);
+                /* Mark end called */
+                httpResponseData->state |= HttpResponseData<SSL>::HTTP_END_CALLED;
+            }
+            /* Remove onAborted function */
+            markDone(httpResponseData);
+        }
+        /* End the socket connection after 1 second.*/
+        Super::timeout(1);
+    }
+
     /* Try and end the response. Returns [true, true] on success.
      * Starts a timeout in some cases. Returns [ok, hasResponded] */
     std::pair<bool, bool> tryEnd(std::string_view data, int totalSize = 0) {
